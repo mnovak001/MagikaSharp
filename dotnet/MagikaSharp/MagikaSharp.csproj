@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+
+        <!-- NuGet Info -->
+        <PackageId>MagikaSharp</PackageId>
+        <Authors>Michal Novák</Authors>
+        <Description>.NET wrapper for Magika Rust FFI</Description>
+
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <None Include="../../LICENSE" Pack="true" PackagePath="" />
+
+        <!-- Magika licenses -->
+        <None Include="../../LICENSE.magika" Pack="true" PackagePath="" />
+
+        <!-- ORT licenses -->
+        <None Include="../../LICENSE.ort" Pack="true" PackagePath="" />
+        <None Include="../../ThirdPartyNotices.ort.txt" Pack="true" PackagePath="" />
+
+        <!-- Native binaries for runtimes -->
+        <None Include="runtimes/**/*" Pack="true" PackagePath="runtimes/" CopyToOutputDirectory="PreserveNewest" />
+
+        <None Include="../../README.md" Pack="true" PackagePath="" />
+
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="runtimes/**/*" Pack="true" PackagePath="runtimes/" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+
+</Project>
