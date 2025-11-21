@@ -1,54 +1,57 @@
 name: Publish NuGet
 
 on:
-  push:
-    tags:
-      - "v*.*.*"     # Run only when a version tag is pushed
-  workflow_dispatch:
-
-env:
-  DOTNET_VERSION: "9.0.x"
+  workflow_run:
+    workflows: ["Build Artifacts"]
+    types:
+      - completed
 
 jobs:
-
   publish:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'refs/tags/v')
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      # Download artifacts from previous workflow
+      # 🔥 Download artifacts from the Build workflow using run-id
       - uses: actions/download-artifact@v4
         with:
+          run-id: ${{ github.event.workflow_run.id }}
           name: linux-x64
           path: dotnet/MagikaSharp/runtimes/linux-x64/native/
 
       - uses: actions/download-artifact@v4
         with:
+          run-id: ${{ github.event.workflow_run.id }}
           name: win-x64
           path: dotnet/MagikaSharp/runtimes/win-x64/native/
 
       - uses: actions/download-artifact@v4
         with:
+          run-id: ${{ github.event.workflow_run.id }}
           name: osx-arm64
           path: dotnet/MagikaSharp/runtimes/osx-arm64/native/
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: 9.0.x
 
-      - name: Build .NET project
+      - name: Build .NET
         working-directory: dotnet/MagikaSharp
         run: dotnet build -c Release
 
-      - name: Pack NuGet
+      - name: Pack .NET
         working-directory: dotnet/MagikaSharp
         run: dotnet pack -c Release
 
       - name: Publish NuGet
         working-directory: dotnet/MagikaSharp
-        run: dotnet nuget push "bin/Release/*.nupkg" \
-              --source https://api.nuget.org/v3/index.json \
-              --api-key ${{ secrets.NUGET_API_KEY }} \
-              --skip-duplicate
+        run: |
+          dotnet nuget push "bin/Release/*.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --skip-duplicate
