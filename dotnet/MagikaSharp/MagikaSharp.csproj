@@ -8,12 +8,17 @@
         <Authors>Michal Novák</Authors>
         <Description>.NET wrapper for Magika Rust FFI</Description>
 
-        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
         <PackageReadmeFile>README.md</PackageReadmeFile>
 
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <EnableDefaultContentItems>false</EnableDefaultContentItems>
+
+        <PackageProjectUrl>https://github.com/mnovak001/MagikaSharp</PackageProjectUrl>
+
+        <RepositoryUrl>https://github.com/mnovak001/MagikaSharp</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
     <ItemGroup>
