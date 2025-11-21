@@ -1,0 +1,110 @@
+name: Build Artifacts
+
+on:
+  push:        # run on every push
+    branches:
+      - "**"
+  workflow_dispatch:
+
+env:
+  ORT_VERSION: "1.22.0"
+  DOTNET_VERSION: "9.0.x"
+
+jobs:
+
+  #######################################################################
+  #  L I N U X
+  #######################################################################
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup target add x86_64-unknown-linux-musl
+
+      - name: Download ONNX Runtime (Linux)
+        run: |
+          mkdir -p rust/magika_ffi/ort
+          cd rust/magika_ffi/ort
+          wget -q https://github.com/microsoft/onnxruntime/releases/download/v${{ env.ORT_VERSION }}/onnxruntime-linux-x64-${{ env.ORT_VERSION }}.tgz
+          tar xf onnxruntime-linux-x64-${{ env.ORT_VERSION }}.tgz
+
+      - name: Set ORT paths
+        run: |
+          echo "ORT_LIB_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-linux-x64-${{ env.ORT_VERSION }}/lib" >> $GITHUB_ENV
+          echo "ORT_INCLUDE_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-linux-x64-${{ env.ORT_VERSION }}/include" >> $GITHUB_ENV
+
+      - name: Build Rust (Linux)
+        working-directory: rust/magika_ffi
+        run: cargo build --release --target x86_64-unknown-linux-gnu
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64
+          path: rust/magika_ffi/target/x86_64-unknown-linux-gnu/release/
+
+
+
+  #######################################################################
+  #  W I N D O W S
+  #######################################################################
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup target add x86_64-pc-windows-msvc
+
+      - name: Download ONNX Runtime (Windows)
+        run: |
+          mkdir rust\magika_ffi\ort
+          cd rust\magika_ffi\ort
+          Invoke-WebRequest https://github.com/microsoft/onnxruntime/releases/download/v${{ env.ORT_VERSION }}/onnxruntime-win-x64-${{ env.ORT_VERSION }}.zip -OutFile ort.zip
+          Expand-Archive ort.zip -DestinationPath .
+
+      - name: Set ORT paths
+        run: |
+          echo "ORT_LIB_LOCATION=${{ github.workspace }}\\rust\\magika_ffi\\ort\\onnxruntime-win-x64-${{ env.ORT_VERSION }}\\lib" >> $env:GITHUB_ENV
+          echo "ORT_INCLUDE_LOCATION=${{ github.workspace }}\\rust\\magika_ffi\\ort\\onnxruntime-win-x64-${{ env.ORT_VERSION }}\\include" >> $env:GITHUB_ENV
+
+      - name: Build Rust (Windows)
+        working-directory: rust/magika_ffi
+        run: cargo build --release --target x86_64-pc-windows-msvc
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: win-x64
+          path: rust/magika_ffi/target/x86_64-pc-windows-msvc/release/
+
+
+
+  #######################################################################
+  #  M A C O S   (ARM64)
+  #######################################################################
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup target add aarch64-apple-darwin
+
+      - name: Download ONNX Runtime (macOS ARM64)
+        run: |
+          mkdir -p rust/magika_ffi/ort
+          cd rust/magika_ffi/ort
+          wget -q https://github.com/microsoft/onnxruntime/releases/download/v${{ env.ORT_VERSION }}/onnxruntime-osx-arm64-${{ env.ORT_VERSION }}.tgz
+          tar xf onnxruntime-osx-arm64-${{ env.ORT_VERSION }}.tgz
+
+      - name: Set ORT paths
+        run: |
+          echo "ORT_LIB_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-osx-arm64-${{ env.ORT_VERSION }}/lib" >> $GITHUB_ENV
+          echo "ORT_INCLUDE_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-osx-arm64-${{ env.ORT_VERSION }}/include" >> $GITHUB_ENV
+
+      - name: Build Rust (macOS ARM64)
+        working-directory: rust/magika_ffi
+        run: cargo build --release --target aarch64-apple-darwin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: osx-arm64
+          path: rust/magika_ffi/target/aarch64-apple-darwin/release/

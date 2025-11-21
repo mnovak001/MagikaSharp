@@ -5,26 +5,29 @@ namespace MagikaSharp;
 
 internal static class NativeMagika
 {
-    private const string LIB = "libmagika_ffi"; 
+    private const string Lib = "libmagika_ffi"; 
     // Linux: libmagika_ffi.so
     // Windows: magika_ffi.dll
     // macOS: libmagika_ffi.dylib
 
-    [DllImport(LIB, CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr magika_session_new();
 
-    [DllImport(LIB, CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
     public static extern void magika_session_free(IntPtr session);
 
-    [DllImport(LIB, CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr magika_identify_file(
         IntPtr session,
         [MarshalAs(UnmanagedType.LPStr)] string path);
 
-    [DllImport(LIB, CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
     public static extern void magika_string_free(IntPtr strPtr);
     
-    [DllImport(LIB, CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void magika_typeinfo_free(IntPtr infoPtr);
+    
+    [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr magika_identify_bytes(
         IntPtr session,
         byte[] data,
