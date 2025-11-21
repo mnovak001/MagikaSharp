@@ -58,6 +58,12 @@ jobs:
   #######################################################################
   build-windows:
     runs-on: windows-latest
+    if: |
+      startsWith(github.event.head_commit.message, 'feat:') ||
+      startsWith(github.event.head_commit.message, 'fix:')  ||
+      startsWith(github.event.head_commit.message, 'perf:') ||
+      startsWith(github.event.head_commit.message, 'refactor:') ||
+      startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -91,6 +97,12 @@ jobs:
   #######################################################################
   build-macos:
     runs-on: macos-latest
+    if: |
+      startsWith(github.event.head_commit.message, 'feat:') ||
+      startsWith(github.event.head_commit.message, 'fix:')  ||
+      startsWith(github.event.head_commit.message, 'perf:') ||
+      startsWith(github.event.head_commit.message, 'refactor:') ||
+      startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
