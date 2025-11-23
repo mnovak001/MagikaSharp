@@ -1,7 +1,7 @@
 name: Build Artifacts
 
 on:
-  push:        # run on every push
+  push:
     branches:
       - "**"
   workflow_dispatch:
@@ -22,22 +22,24 @@ jobs:
       startsWith(github.event.head_commit.message, 'fix:')  ||
       startsWith(github.event.head_commit.message, 'perf:') ||
       startsWith(github.event.head_commit.message, 'refactor:')
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: dtolnay/rust-toolchain@stable
-      - run: rustup target add x86_64-unknown-linux-musl
+      - run: rustup target add x86_64-unknown-linux-gnu
 
       - name: Download ONNX Runtime (Linux)
         run: |
           mkdir -p rust/magika_ffi/ort
           cd rust/magika_ffi/ort
-          wget -q https://github.com/microsoft/onnxruntime/releases/download/v${{ env.ORT_VERSION }}/onnxruntime-linux-x64-${{ env.ORT_VERSION }}.tgz
-          tar xf onnxruntime-linux-x64-${{ env.ORT_VERSION }}.tgz
+          wget -q https://github.com/microsoft/onnxruntime/releases/download/v${ORT_VERSION}/onnxruntime-linux-x64-${ORT_VERSION}.tgz
+          tar xf onnxruntime-linux-x64-${ORT_VERSION}.tgz
 
       - name: Set ORT paths
         run: |
-          echo "ORT_LIB_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-linux-x64-${{ env.ORT_VERSION }}/lib" >> $GITHUB_ENV
-          echo "ORT_INCLUDE_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-linux-x64-${{ env.ORT_VERSION }}/include" >> $GITHUB_ENV
+          echo "ORT_LIB_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-linux-x64-${ORT_VERSION}/lib" >> $GITHUB_ENV
+          echo "ORT_INCLUDE_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-linux-x64-${ORT_VERSION}/include" >> $GITHUB_ENV
 
       - name: Build Rust (Linux)
         working-directory: rust/magika_ffi
@@ -46,7 +48,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: linux-x64
-          path: rust/magika_ffi/target/x86_64-unknown-linux-gnu/release/
+          path: |
+            rust/magika_ffi/target/x86_64-unknown-linux-gnu/release/libmagika_ffi.so
+            rust/magika_ffi/ort/onnxruntime-linux-x64-${{ env.ORT_VERSION }}/lib/*.so*
 
 
 
@@ -60,8 +64,10 @@ jobs:
       startsWith(github.event.head_commit.message, 'fix:')  ||
       startsWith(github.event.head_commit.message, 'perf:') ||
       startsWith(github.event.head_commit.message, 'refactor:')
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: dtolnay/rust-toolchain@stable
       - run: rustup target add x86_64-pc-windows-msvc
 
@@ -69,13 +75,13 @@ jobs:
         run: |
           mkdir rust\magika_ffi\ort
           cd rust\magika_ffi\ort
-          Invoke-WebRequest https://github.com/microsoft/onnxruntime/releases/download/v${{ env.ORT_VERSION }}/onnxruntime-win-x64-${{ env.ORT_VERSION }}.zip -OutFile ort.zip
+          Invoke-WebRequest https://github.com/microsoft/onnxruntime/releases/download/v${env:ORT_VERSION}/onnxruntime-win-x64-${env:ORT_VERSION}.zip -OutFile ort.zip
           Expand-Archive ort.zip -DestinationPath .
 
       - name: Set ORT paths
         run: |
-          echo "ORT_LIB_LOCATION=${{ github.workspace }}\\rust\\magika_ffi\\ort\\onnxruntime-win-x64-${{ env.ORT_VERSION }}\\lib" >> $env:GITHUB_ENV
-          echo "ORT_INCLUDE_LOCATION=${{ github.workspace }}\\rust\\magika_ffi\\ort\\onnxruntime-win-x64-${{ env.ORT_VERSION }}\\include" >> $env:GITHUB_ENV
+          echo "ORT_LIB_LOCATION=${{ github.workspace }}\\rust\\magika_ffi\\ort\\onnxruntime-win-x64-${env:ORT_VERSION}\\lib" >> $env:GITHUB_ENV
+          echo "ORT_INCLUDE_LOCATION=${{ github.workspace }}\\rust\\magika_ffi\\ort\\onnxruntime-win-x64-${env:ORT_VERSION}\\include" >> $env:GITHUB_ENV
 
       - name: Build Rust (Windows)
         working-directory: rust/magika_ffi
@@ -84,7 +90,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: win-x64
-          path: rust/magika_ffi/target/x86_64-pc-windows-msvc/release/
+          path: |
+            rust/magika_ffi/target/x86_64-pc-windows-msvc/release/magika_ffi.dll
+            rust/magika_ffi/ort/onnxruntime-win-x64-${{ env.ORT_VERSION }}/lib/*.dll
 
 
 
@@ -98,8 +106,10 @@ jobs:
       startsWith(github.event.head_commit.message, 'fix:')  ||
       startsWith(github.event.head_commit.message, 'perf:') ||
       startsWith(github.event.head_commit.message, 'refactor:')
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: dtolnay/rust-toolchain@stable
       - run: rustup target add aarch64-apple-darwin
 
@@ -107,13 +117,13 @@ jobs:
         run: |
           mkdir -p rust/magika_ffi/ort
           cd rust/magika_ffi/ort
-          wget -q https://github.com/microsoft/onnxruntime/releases/download/v${{ env.ORT_VERSION }}/onnxruntime-osx-arm64-${{ env.ORT_VERSION }}.tgz
-          tar xf onnxruntime-osx-arm64-${{ env.ORT_VERSION }}.tgz
+          wget -q https://github.com/microsoft/onnxruntime/releases/download/v${ORT_VERSION}/onnxruntime-osx-arm64-${ORT_VERSION}.tgz
+          tar xf onnxruntime-osx-arm64-${ORT_VERSION}.tgz
 
       - name: Set ORT paths
         run: |
-          echo "ORT_LIB_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-osx-arm64-${{ env.ORT_VERSION }}/lib" >> $GITHUB_ENV
-          echo "ORT_INCLUDE_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-osx-arm64-${{ env.ORT_VERSION }}/include" >> $GITHUB_ENV
+          echo "ORT_LIB_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-osx-arm64-${ORT_VERSION}/lib" >> $GITHUB_ENV
+          echo "ORT_INCLUDE_LOCATION=${{ github.workspace }}/rust/magika_ffi/ort/onnxruntime-osx-arm64-${ORT_VERSION}/include" >> $GITHUB_ENV
 
       - name: Build Rust (macOS ARM64)
         working-directory: rust/magika_ffi
@@ -122,4 +132,78 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: osx-arm64
-          path: rust/magika_ffi/target/aarch64-apple-darwin/release/
+          path: |
+            rust/magika_ffi/target/aarch64-apple-darwin/release/libmagika_ffi.dylib
+            rust/magika_ffi/ort/onnxruntime-osx-arm64-${{ env.ORT_VERSION }}/lib/*.dylib
+
+
+
+  #######################################################################
+  #  P U B L I S H   N U G E T   (LOCAL ONLY)
+  #######################################################################
+  publish-nuget:
+    needs: [build-linux, build-windows, build-macos]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          mkdir -p dotnet/MagikaSharp/runtimes/linux-x64/native
+          mkdir -p dotnet/MagikaSharp/runtimes/win-x64/native
+          mkdir -p dotnet/MagikaSharp/runtimes/osx-arm64/native
+
+      # Download ONLY the required native binaries
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-x64
+          path: extracted/linux
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: win-x64
+          path: extracted/win
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: osx-arm64
+          path: extracted/osx
+
+      # Normalize Linux
+      - name: Install findutils
+        run: sudo apt-get install -y findutils
+
+      - name: Normalize Linux binaries
+        run: |
+          cp $(find extracted/linux -maxdepth 4 -name "libmagika_ffi.so") dotnet/MagikaSharp/runtimes/linux-x64/native/
+          cp $(find extracted/linux -maxdepth 6 -name "libonnxruntime*.so*") dotnet/MagikaSharp/runtimes/linux-x64/native/
+
+      # Normalize Windows
+      - name: Normalize Windows binaries
+        run: |
+          cp $(find extracted/win -maxdepth 4 -name "magika_ffi.dll") dotnet/MagikaSharp/runtimes/win-x64/native/
+          cp $(find extracted/win -maxdepth 6 -name "onnxruntime*.dll") dotnet/MagikaSharp/runtimes/win-x64/native/
+
+      # Normalize macOS
+      - name: Normalize macOS binaries
+        run: |
+          cp $(find extracted/osx -maxdepth 4 -name "libmagika_ffi.dylib") dotnet/MagikaSharp/runtimes/osx-arm64/native/
+          cp $(find extracted/osx -maxdepth 6 -name "libonnxruntime*.dylib") dotnet/MagikaSharp/runtimes/osx-arm64/native/
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build .NET
+        working-directory: dotnet/MagikaSharp
+        run: dotnet build -c Release
+
+      - name: Pack NuGet (local only)
+        working-directory: dotnet/MagikaSharp
+        run: dotnet pack -c Release -o ./nupkg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MagikaSharp-nuget
+          path: dotnet/MagikaSharp/nupkg/*.nupkg

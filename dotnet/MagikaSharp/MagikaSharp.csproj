@@ -32,16 +32,12 @@
         <None Include="../../LICENSE.ort" Pack="true" PackagePath="" />
         <None Include="../../ThirdPartyNotices.ort.txt" Pack="true" PackagePath="" />
 
-        <!-- Native binaries for runtimes -->
-        <None Include="runtimes/**/*" Pack="true" PackagePath="runtimes/" CopyToOutputDirectory="PreserveNewest" />
-
         <None Include="../../README.md" Pack="true" PackagePath="" />
 
+        <None Include="runtimes/**/*.dll"   Pack="true" PackagePath="runtimes/" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="runtimes/**/*.so"    Pack="true" PackagePath="runtimes/" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="runtimes/**/*.so.*"  Pack="true" PackagePath="runtimes/" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="runtimes/**/*.dylib" Pack="true" PackagePath="runtimes/" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
-
-    <ItemGroup>
-        <None Include="runtimes/**/*" Pack="true" PackagePath="runtimes/" CopyToOutputDirectory="PreserveNewest" />
-    </ItemGroup>
-
 
 </Project>
