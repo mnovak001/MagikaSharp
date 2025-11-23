@@ -123,30 +123,57 @@ jobs:
   #######################################################################
   #  P U B L I S H   N U G E T
   #######################################################################
-  publish-nuget:
+publish-nuget:
     needs: [build-linux, build-windows, build-macos]
     runs-on: ubuntu-latest
+
+    env:
+      GIT_TAG: ${{ github.ref_name }}
 
     steps:
       - uses: actions/checkout@v4
 
+      - run: |
+          mkdir -p dotnet/MagikaSharp/runtimes/linux-x64/native
+          mkdir -p dotnet/MagikaSharp/runtimes/win-x64/native
+          mkdir -p dotnet/MagikaSharp/runtimes/osx-arm64/native
+
+      # Download ONLY the required native binaries
       - uses: actions/download-artifact@v4
         with:
           name: linux-x64
-          path: dotnet/MagikaSharp/runtimes/linux-x64/native/
+          path: extracted/linux
 
       - uses: actions/download-artifact@v4
         with:
           name: win-x64
-          path: dotnet/MagikaSharp/runtimes/win-x64/native/
+          path: extracted/win
 
       - uses: actions/download-artifact@v4
         with:
           name: osx-arm64
-          path: dotnet/MagikaSharp/runtimes/osx-arm64/native/
+          path: extracted/osx
 
-      - name: Set NuGet version from tag
-        run: echo "GIT_TAG=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+      # Normalize Linux
+      - name: Install findutils
+        run: sudo apt-get install -y findutils
+
+      - name: Normalize Linux binaries
+        run: |
+          cp $(find extracted/linux -maxdepth 4 -name "libmagika_ffi.so") dotnet/MagikaSharp/runtimes/linux-x64/native/
+          cp $(find extracted/linux -maxdepth 6 -name "libonnxruntime*.so*") dotnet/MagikaSharp/runtimes/linux-x64/native/
+
+      # Normalize Windows
+      - name: Normalize Windows binaries
+        run: |
+          cp $(find extracted/win -maxdepth 4 -name "magika_ffi.dll") dotnet/MagikaSharp/runtimes/win-x64/native/
+          cp $(find extracted/win -maxdepth 6 -name "onnxruntime*.dll") dotnet/MagikaSharp/runtimes/win-x64/native/
+
+      # Normalize macOS
+      - name: Normalize macOS binaries
+        run: |
+          cp $(find extracted/osx -maxdepth 4 -name "libmagika_ffi.dylib") dotnet/MagikaSharp/runtimes/osx-arm64/native/
+          cp $(find extracted/osx -maxdepth 6 -name "libonnxruntime*.dylib") dotnet/MagikaSharp/runtimes/osx-arm64/native/
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
