@@ -57,3 +57,4 @@ target/
 .idea/
 ort/
 native/
+linux-x64-artifact/
