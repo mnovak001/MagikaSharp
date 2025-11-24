@@ -84,7 +84,7 @@ public sealed class MagikaSession : IDisposable
         if (path == null)
             throw new ArgumentNullException(nameof(path));
 
-        if (!new FileInfo(path).Exists)
+        if (!File.Exists(path))
             throw new  FileNotFoundException(path);
 
         IntPtr infoPtr = NativeMagika.magika_identify_file(_ptr, path);
