@@ -129,6 +129,11 @@ jobs:
         working-directory: rust/magika_ffi
         run: cargo build --release --target aarch64-apple-darwin
 
+      - name: Fix RPATH of libmagika_ffi.dylib
+        run: |
+          install_name_tool -add_rpath "@loader_path" \
+            rust/magika_ffi/target/aarch64-apple-darwin/release/libmagika_ffi.dylib
+
       - uses: actions/upload-artifact@v4
         with:
           name: osx-arm64

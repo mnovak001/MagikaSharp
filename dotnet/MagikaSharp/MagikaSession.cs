@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace MagikaSharp;
@@ -69,6 +70,9 @@ public sealed class MagikaSession : IDisposable
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="path"/> is <c>null</c>.
     /// </exception>
+    ///  <exception cref="FileNotFoundException">
+    /// Thrown if file <paramref name="path"/> does not exist.
+    /// </exception>
     /// <remarks>
     /// Internally this function calls the native <c>magika_identify_file</c>.
     /// </remarks>
@@ -79,6 +83,9 @@ public sealed class MagikaSession : IDisposable
 
         if (path == null)
             throw new ArgumentNullException(nameof(path));
+
+        if (!new FileInfo(path).Exists)
+            throw new  FileNotFoundException(path);
 
         IntPtr infoPtr = NativeMagika.magika_identify_file(_ptr, path);
 
